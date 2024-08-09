@@ -1,5 +1,7 @@
 import argparse
+import logging
 
+logger = logging.getLogger(__name__)
 
 def command_line_parser():
     parser = argparse.ArgumentParser(prog='ibc_refresh',
@@ -23,5 +25,5 @@ def command_line_parser():
     parser.add_argument('-v', '--version',
                         action='version',
                         version='1.0')
-    args = parser.parse_args()
-    return args
+    logger.info('CLI arguments processed.')
+    return parser.parse_args()

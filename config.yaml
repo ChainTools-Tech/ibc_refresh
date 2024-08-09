@@ -1,6 +1,6 @@
-log_directory: .logs\ibc_refresh\ibc
-task_log_path: .logs\ibc_refresh\task_execution.log
-command_log_path: .logs\ibc_refresh\executed_commands.log
+log_directory: .logs\ibc_refresh\
+task_log_file: task_execution.log
+command_log_file: executed_commands.log
 hermes_path: /home/relayer/.local/bin/hermes
 
 tasks:
