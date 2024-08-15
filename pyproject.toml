@@ -24,9 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10"
 ]
-dependencies = [
-
-]
+dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
 ibc_refresh = "ibc_refresh.__main__:main"
+
+[tool.setuptools.package-data]
+'src' = ['config.yaml']
