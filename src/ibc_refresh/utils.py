@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 
 def ensure_directory(path):
-    if os.path.splitext(path)[1]:  # Checks if the path has a file extension
+    if os.path.splitext(path)[1]:
         directory = os.path.dirname(path)
     else:
         directory = path
