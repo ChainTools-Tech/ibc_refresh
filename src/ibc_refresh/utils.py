@@ -13,7 +13,7 @@ def ensure_directory(path):
         os.makedirs(directory, exist_ok=True)
         return directory
     except OSError as e:
-        logging.error(f"Error creating directory {directory}: {e}")
-        fallback_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logs')
+        fallback_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.logs')
+        logging.error(f"Error creating directory {directory}: {e}, Fallback directory {fallback_dir}")
         os.makedirs(fallback_dir, exist_ok=True)
         return fallback_dir

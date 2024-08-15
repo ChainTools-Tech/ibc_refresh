@@ -9,11 +9,9 @@ task_logger = logging.getLogger("TaskLogger")
 
 
 def execute_command(command, description, log_filename, config):
-    print("Executing command: {}".format(command))
-
     command_string = ' '.join(command)
     cmd_logger.info(f"Executing command: {command_string}")
-    log_path = os.path.join(config['log_directory'], 'task_output', log_filename)
+    log_path = log_filename
     cmd_logger.info(f"Starting: {description}")
     start_time = datetime.now()
 
@@ -38,14 +36,18 @@ def execute_command(command, description, log_filename, config):
             task_logger.exception("Command not founds: {}".format(command_string))
 
 
-
 def process_tasks(cmdargs, config):
-    task_log_path = ensure_directory(os.path.join(config['log_directory'], 'task_output\\'))
-    task_logger.info(f"Output for tasks log checked: {task_log_path}")
+    tasks_log_path = ensure_directory(os.path.join(config['log_directory'], 'task_output/'))
+    task_logger.info(f"Output for tasks log checked: {tasks_log_path}")
+
+    for task in cmdargs.task:
+        task_specific_log_path = ensure_directory(os.path.join(tasks_log_path, task))
+        task_logger.info(f"Output for task specific logs checked: {task_specific_log_path}/{task}")
+
     for task in config['tasks']:
         for entry in task['entries']:
             if task['type'] == 'clear_packets' and 'clear_packets' in cmdargs.task:
-                cmd_output_log_filename = f"{task['type']}_{entry['chain']}_{entry['channel']}_{entry['destination_chain']}.log"
+                cmd_output_log_filename = f"{tasks_log_path}/{task['type']}/{task['type']}_{entry['chain']}_{entry['channel']}_{entry['destination_chain']}.log"
                 description = f"Clearing packets on {entry['chain']} channel {entry['channel']} to {entry['destination_chain']}"
                 command = [
                     config['hermes_path'], 'clear', 'packets',
@@ -53,7 +55,7 @@ def process_tasks(cmdargs, config):
                 ]
                 execute_command(command, description, cmd_output_log_filename, config)
             elif task['type'] == 'update_client' and 'update_client' in cmdargs.task:
-                cmd_output_log_filename = f"{task['type']}_{entry['host_chain']}_{entry['client']}_{entry['destination_chain']}.log"
+                cmd_output_log_filename = f"{tasks_log_path}/{task['type']}/{task['type']}_{entry['host_chain']}_{entry['client']}_{entry['destination_chain']}.log"
                 description = f"Updating client {entry['client']} on {entry['host_chain']} for {entry['destination_chain']}"
                 command = [
                     config['hermes_path'], 'update', 'client',

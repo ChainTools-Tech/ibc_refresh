@@ -3,9 +3,9 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cli_template"
+name = "ibc_refresh"
 version = "0.1.0"
-description = "CLI app."
+description = "IBC Refresh for Hermes."
 authors = [
     { name = "qf3l3k | ChainTools", email = "contact@chaintools.tech" }
 ]

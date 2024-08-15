@@ -1,5 +1,3 @@
-import logging
-
 from ibc_refresh.cli import command_line_parser
 from ibc_refresh.config import load_config
 from ibc_refresh.logger import initialize_loggers
