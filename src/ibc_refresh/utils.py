@@ -1,8 +1,6 @@
 import logging
 import os
 
-logger = logging.getLogger(__name__)
-
 
 def ensure_directory(path):
     if os.path.splitext(path)[1]:
