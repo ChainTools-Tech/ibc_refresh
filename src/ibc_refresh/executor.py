@@ -4,6 +4,7 @@ import subprocess
 from datetime import datetime
 from ibc_refresh.utils import ensure_directory
 
+
 cmd_logger = logging.getLogger("CommandLogger")
 task_logger = logging.getLogger("TaskLogger")
 
