@@ -1,5 +1,4 @@
 import argparse
-import logging
 
 
 def command_line_parser():
