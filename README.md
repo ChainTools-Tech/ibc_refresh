@@ -1,4 +1,4 @@
-# IBC Relayer Tasks
+# IBC Refresh
 
 This tool automates tasks for IBC relayers, such as clearing packets and updating clients between blockchain networks. It's designed to simplify the management of IBC relayer functions through a command-line interface.
 
@@ -22,8 +22,8 @@ This application can be packaged and installed from source. Here are the steps t
 
 1. **Clone the repository**:
    ```bash
-   git clone https://your-repository-url/ibc_relayer_tool.git
-   cd ibc_relayer_tool
+   git clone https://your-repository-url/ibc_refresh.git
+   cd ibc_refresh
    ```
 
 2. **Build the package**:
@@ -34,7 +34,7 @@ This application can be packaged and installed from source. Here are the steps t
 
 3. **Install the package**:
    ```bash
-   python -m pip install dist/ibc_relayer_tasks-0.1.0-py3-none-any.whl
+   python -m pip install dist/ibc_refresh-0.1.0-py3-none-any.whl
    ```
    Replace the filename with the actual filename generated in the `dist` directory.
 
@@ -43,7 +43,7 @@ This application can be packaged and installed from source. Here are the steps t
 To install this application on a new system, ensure Python 3.8+ is installed, then follow the packaging instructions above or use pip to install directly from a hosted package on PyPI (if available):
 
 ```bash
-pip install ibc_relayer_tasks
+pip install ibc_refresh
 ```
 
 ## Usage
@@ -51,7 +51,7 @@ pip install ibc_relayer_tasks
 Once installed, you can run the application using the command line. Here’s how to execute tasks:
 
 ```bash
-ibc_relayer --config path/to/your/config.yaml --task clear_packets
+ibc_refresh --config path/to/your/config.yaml --task clear_packets
 ```
 
 ### Configuration
