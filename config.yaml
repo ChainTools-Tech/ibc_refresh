@@ -1,193 +1,61 @@
-log_directory: /home/relayer/logs/ibc_refresh/ibc
-task_log_path: /home/relayer/logs/ibc_refresh/task_execution.log
-command_log_path: /home/relayer/logs/ibc_refresh/executed_commands.log
+log_directory: .logs/
+task_log_file: task_execution.log
+command_log_file: executed_commands.log
 hermes_path: /home/relayer/.local/bin/hermes
 
 tasks:
   - type: clear_packets
     entries:
-      - chain: acre_9052-1
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-490
-        destination_chain: acre_9052-1
-      - chain: bitsong-2b
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-73
-        destination_chain: bitsong-2b
-      - chain: bluzelle-9
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-73
-        destination_chain: bluzelle-9
-      - chain: desmos-mainnet
-        port: transfer
-        channel: channel-2
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-135
-        destination_chain: desmos-mainnet
-      - chain: emoney-3
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-37
-        destination_chain: emoney-3
-      - chain: fetchhub-4
-        port: transfer
-        channel: channel-10
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-229
-        destination_chain: fetchhub-4
-      - chain: furya-1
-        port: transfer
-        channel: channel-8
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-74222
-        destination_chain: furya-1
-      - chain: furya-1
-        port: transfer
-        channel: channel-9
-        destination_chain: phoenix-1
-      - chain: phoenix-1
-        port: transfer
-        channel: channel-495
-        destination_chain: furya-1
-      - chain: jackal-1
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-412
-        destination_chain: jackal-1
-      - chain: kichain-2
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-77
-        destination_chain: kichain-2
-      - chain: omniflixhub-1
-        port: transfer
-        channel: channel-1
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-199
-        destination_chain: omniflixhub-1
-      - chain: sentinelhub-2
-        port: transfer
-        channel: channel-0
-        destination_chain: osmosis-1
-      - chain: osmosis-1
-        port: transfer
-        channel: channel-2
-        destination_chain: sentinelhub-2
-      - chain: sentinelhub-2
-        port: transfer
-        channel: channel-55
-        destination_chain: mainnet-3
-      - chain: mainnet-3
-        port: transfer
-        channel: channel-4
-        destination_chain: sentinelhub-2
+      - { chain: acre_9052-1, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-490, destination_chain: acre_9052-1 }
+      - { chain: bitsong-2b, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-73, destination_chain: bitsong-2b }
+      - { chain: bluzelle-9, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-763, destination_chain: bluzelle-9 }
+      - { chain: desmos-mainnet, port: transfer, channel: channel-2, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-135, destination_chain: desmos-mainnet }
+      - { chain: emoney-3, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-37, destination_chain: emoney-3 }
+      - { chain: furya-1, port: transfer, channel: channel-8, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-74222, destination_chain: furya-1 }
+      - { chain: furya-1, port: transfer, channel: channel-9, destination_chain: phoenix-1 }
+      - { chain: phoenix-1, port: transfer, channel: channel-495, destination_chain: furya-1 }
+      - { chain: jackal-1, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-412, destination_chain: jackal-1 }
+      - { chain: kichain-2, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-77, destination_chain: kichain-2 }
+      - { chain: omniflixhub-1, port: transfer, channel: channel-1, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-199, destination_chain: omniflixhub-1 }
+      - { chain: sentinelhub-2, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
+      - { chain: osmosis-1, port: transfer, channel: channel-2, destination_chain: sentinelhub-2 }
+      - { chain: sentinelhub-2, port: transfer, channel: channel-55, destination_chain: mainnet-3 }
+      - { chain: mainnet-3, port: transfer, channel: channel-4, destination_chain: sentinelhub-2 }
 
   - type: update_client
     entries:
-      - host_chain: acre_9052-1
-        client: 07-tendermint-0
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-2316
-        destination_chain: acre_9052-1
-      - host_chain: bitsong-2b
-        client: 07-tendermint-0
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1551
-        destination_chain: bitsong-2b
-      - host_chain: bluzelle-9
-        client: 07-tendermint-0
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-2754
-        destination_chain: bluzelle-9
-      - host_chain: desmos-mainnet
-        client: 07-tendermint-6
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1726
-        destination_chain: desmos-mainnet
-      - host_chain: emoney-3
-        client: 07-tendermint-7
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1447
-        destination_chain: emoney-3
-      - host_chain: fetchhub-4
-        client: 07-tendermint-10
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1913
-        destination_chain: fetchhub-4
-      - host_chain: furya-1
-        client: 07-tendermint-10
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-3201
-        destination_chain: furya-1
-      - host_chain: furya-1
-        client: 07-tendermint-14
-        destination_chain: phoenix-1
-      - host_chain: phoenix-1
-        client: 07-tendermint-422
-        destination_chain: furya-1
-      - host_chain: jackal-1
-        client: 07-tendermint-2
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-2273
-        destination_chain: jackal-1
-      - host_chain: kichain-2
-        client: 07-tendermint-4
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1564
-        destination_chain: kichain-2
-      - host_chain: omniflixhub-1
-        client: 07-tendermint-8
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-1829
-        destination_chain: omniflixhub-1
-      - host_chain: sentinelhub-2
-        client: 07-tendermint-0
-        destination_chain: osmosis-1
-      - host_chain: osmosis-1
-        client: 07-tendermint-2
-        destination_chain: sentinelhub-2
-      - host_chain: sentinelhub-2
-        client: 07-tendermint-103
-        destination_chain: mainnet-3
-      - host_chain: mainnet-3
-        client: 07-tendermint-13
-        destination_chain: sentinelhub-2
+      - { host_chain: acre_9052-1, client: 07-tendermint-0, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-2316, destination_chain: acre_9052-1 }
+      - { host_chain: bitsong-2b, client: 07-tendermint-0, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1551, destination_chain: bitsong-2b }
+      - { host_chain: bluzelle-9, client: 07-tendermint-0, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-2754, destination_chain: bluzelle-9 }
+      - { host_chain: desmos-mainnet, client: 07-tendermint-6, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1726, destination_chain: desmos-mainnet }
+      - { host_chain: emoney-3, client: 07-tendermint-7, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1447, destination_chain: emoney-3 }
+      - { host_chain: fetchhub-4, client: 07-tendermint-10, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1913, destination_chain: fetchhub-4 }
+      - { host_chain: furya-1, client: 07-tendermint-10, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-3201, destination_chain: furya-1 }
+      - { host_chain: furya-1, client: 07-tendermint-14, destination_chain: phoenix-1 }
+      - { host_chain: phoenix-1, client: 07-tendermint-422, destination_chain: furya-1 }
+      - { host_chain: jackal-1, client: 07-tendermint-2, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-2273, destination_chain: jackal-1 }
+      - { host_chain: kichain-2, client: 07-tendermint-4, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1564, destination_chain: kichain-2 }
+      - { host_chain: omniflixhub-1, client: 07-tendermint-8, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-1829, destination_chain: omniflixhub-1 }
+      - { host_chain: sentinelhub-2, client: 07-tendermint-0, destination_chain: osmosis-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-2, destination_chain: sentinelhub-2 }
+      - { host_chain: sentinelhub-2, client: 07-tendermint-103, destination_chain: mainnet-3 }
+      - { host_chain: mainnet-3, client: 07-tendermint-13, destination_chain: sentinelhub-2 }
