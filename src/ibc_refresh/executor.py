@@ -35,7 +35,14 @@ def execute_command(command, description, log_filename, config):
                 error_message = f"ERROR detected in Hermes execution: {description}"
                 cmd_logger.error(error_message)
                 notifier = NotificationHandler(config)
-                notifier.send_notification(error_message)
+                notifier.send_notification(
+                    title="🚨 Hermes Execution Failed!",
+                    description=error_message,
+                    severity="critical",
+                    command=command_string,
+                    chain=config.get("chain"),
+                    dst_chain=config.get("destination_chain")
+                )
 
             if return_code:
                 cmd_logger.info(f"Completed with error: {description} (Duration: {end_time - start_time})")
