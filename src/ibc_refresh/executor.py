@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 from datetime import datetime
+from ibc_refresh.notification import NotificationHandler
 from ibc_refresh.utils import ensure_directory
 
 
@@ -10,6 +11,9 @@ task_logger = logging.getLogger("TaskLogger")
 
 
 def execute_command(command, description, log_filename, config):
+    from datetime import datetime
+    from ibc_refresh.notification import NotificationHandler
+
     command_string = ' '.join(command)
     cmd_logger.info(f"Executing command: {command_string}")
     log_path = log_filename
@@ -26,15 +30,26 @@ def execute_command(command, description, log_filename, config):
             process.stdout.close()
             return_code = process.wait()
             end_time = datetime.now()
-            if any("missing chain config" in line for line in output):
-                task_logger.error(
-                    f"ERROR: Chain configuration missing for {description}. Please verify the relayer setup.")
+
+            if return_code != 0:
+                error_message = f"ERROR detected in Hermes execution: {description}"
+                cmd_logger.error(error_message)
+                notifier = NotificationHandler(config)
+                notifier.send_notification(
+                    title="🚨 Hermes Execution Failed!",
+                    description=error_message,
+                    severity="critical",
+                    command=command_string,
+                    chain=config.get("chain"),
+                    dst_chain=config.get("destination_chain")
+                )
+
             if return_code:
-                task_logger.info(f"Completed with error: {description} (Duration: {end_time - start_time})")
+                cmd_logger.info(f"Completed with error: {description} (Duration: {end_time - start_time})")
             else:
-                task_logger.info(f"Completed successfully: {description} (Duration: {end_time - start_time})")
+                cmd_logger.info(f"Completed successfully: {description} (Duration: {end_time - start_time})")
         except FileNotFoundError:
-            task_logger.exception("Command not founds: {}".format(command_string))
+            cmd_logger.exception(f"Command not found: {command_string}")
 
 
 def process_tasks(cmdargs, config):

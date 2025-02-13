@@ -10,7 +10,9 @@ def initialize_loggers(config):
     log_directory = ensure_directory(config['log_directory'])
     task_log_file = os.path.join(log_directory, config['task_log_file'])
     cmd_log_file = os.path.join(log_directory, config['command_log_file'])
+    notification_log_file = os.path.join(log_directory, config.get('notification_log_file', 'notifications.log'))
 
+    # Command logger
     cmd_logger = logging.getLogger('CommandLogger')
     cmd_logger.setLevel(logging.INFO)
 
@@ -22,6 +24,7 @@ def initialize_loggers(config):
     cmd_log_console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(module)s - %(message)s'))
     cmd_logger.addHandler(cmd_log_console_handler)
 
+    # Task execution logger
     task_logger = logging.getLogger('TaskLogger')
     task_logger.setLevel(logging.INFO)
 
@@ -32,3 +35,15 @@ def initialize_loggers(config):
     task_log_console_handler = logging.StreamHandler()
     task_log_console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(module)s - %(message)s'))
     task_logger.addHandler(task_log_console_handler)
+
+    # Notification logger
+    notification_logger = logging.getLogger("NotificationLogger")
+    notification_logger.setLevel(logging.INFO)
+
+    notification_log_file_handler = logging.FileHandler(notification_log_file, mode='a')
+    notification_log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
+    notification_logger.addHandler(notification_log_file_handler)
+
+    notification_log_console_handler = logging.StreamHandler()
+    notification_log_console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
+    notification_logger.addHandler(notification_log_console_handler)
