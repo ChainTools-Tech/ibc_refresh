@@ -47,7 +47,7 @@ class NotificationHandler:
                         {"name": "🔹 Destination Chain", "value": dst_chain} if dst_chain else None
                     ],
                     "timestamp": timestamp,
-                    "footer": {"text": "IBC Radar Notification"}
+                    "footer": {"text": "IBC Refresh Notification"}
                 }
             ]
         }
