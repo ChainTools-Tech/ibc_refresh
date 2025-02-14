@@ -25,7 +25,7 @@ class NotificationHandler:
             if notify_type == "discord":
                 self._send_discord_notification(webhook, title, description, embed_color, command, chain, dst_chain, timestamp)
             elif notify_type == "slack":
-                self._send_slack_notification(webhook, title, description)
+                self._send_slack_notification(webhook, title, description, command, chain, dst_chain, timestamp)
             else:
                 notification_logger.warning(f"Unsupported notification type: {notify_type}")
 
@@ -62,12 +62,24 @@ class NotificationHandler:
         except requests.RequestException as e:
             notification_logger.error(f"Error sending Discord notification: {e}")
 
-    def _send_slack_notification(self, webhook, title, message):
+    def _send_slack_notification(self, webhook, title, description, command, chain, dst_chain, timestamp):
         if not webhook:
             notification_logger.error("Slack webhook URL is missing.")
             return
-
-        payload = {"text": f"*{title}*\n{message}"}
+        payload = {
+            "blocks": [
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*"}},
+                {"type": "section", "fields": [
+                    {"type": "mrkdwn", "text": f"*🔹 Command:*\n`{command}`"} if command else None,
+                    {"type": "mrkdwn", "text": f"*🔹 Chain:*\n{chain}"} if chain else None,
+                    {"type": "mrkdwn", "text": f"*🔹 Destination Chain:*\n{dst_chain}"} if dst_chain else None
+                ]},
+                {"type": "context", "elements": [
+                    {"type": "mrkdwn", "text": f"📅 Timestamp: {timestamp}"}
+                ]}
+            ]
+        }
+        payload["blocks"][1]["fields"] = [field for field in payload["blocks"][1]["fields"] if field]
         try:
             response = requests.post(webhook, json=payload)
             if response.status_code == 200:
