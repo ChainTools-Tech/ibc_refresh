@@ -16,7 +16,7 @@ class NotificationHandler:
             "info": 3066993        # Blue
         }
         embed_color = color_map.get(severity, 3066993)
-        timestamp = datetime.now(datetime.UTC)
+        timestamp = datetime.utcnow().isoformat() + "Z"
 
         for destination in self.notifications:
             notify_type = destination.get("type")
