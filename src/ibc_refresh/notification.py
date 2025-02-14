@@ -35,7 +35,7 @@ class NotificationHandler:
             return
 
         embed = {
-            "username": "IBC Radar",
+            "username": "IBC Refresh",
             "embeds": [
                 {
                     "title": title,
