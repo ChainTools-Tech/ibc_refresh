@@ -11,9 +11,6 @@ task_logger = logging.getLogger("TaskLogger")
 
 
 def execute_command(command, description, log_filename, config):
-    from datetime import datetime
-    from ibc_refresh.notification import NotificationHandler
-
     command_string = ' '.join(command)
     cmd_logger.info(f"Executing command: {command_string}")
     log_path = log_filename
