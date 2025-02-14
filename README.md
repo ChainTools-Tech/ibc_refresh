@@ -1,90 +1,123 @@
 # IBC Refresh
 
-This tool automates tasks for IBC relayers, such as clearing packets and updating clients between blockchain networks. It's designed to simplify the management of IBC relayer functions through a command-line interface.
+## Overview
+
+**IBC Refresh** is an automation tool for IBC relayers, designed to simplify the management of inter-blockchain communication tasks. It supports packet clearance and client updates while integrating structured logging and notifications (Discord/Slack) for monitoring task execution.
 
 ## Features
 
-- **Automated Task Execution**: Automate the execution of tasks like `clear_packets` and `update_client` based on configurations specified in a YAML file.
-- **Configurable**: Easily configurable to handle different chains and tasks using a YAML file.
-- **Logging**: Detailed logging of task execution results, helping in troubleshooting and monitoring the operations.
+- **Automated IBC Operations**: Handles `clear_packets` and `update_client` tasks based on a configuration file.
+- **Configurable Task Execution**: Define tasks in `config.yaml` for multiple chains.
+- **Comprehensive Logging**: Logs stored in a dedicated directory for troubleshooting and auditing.
+- **Notifications**: Supports sending structured alerts to Discord and Slack upon task execution results.
 
 ## Prerequisites
 
-- Python 3.8 or newer.
-- PyYAML for YAML file processing.
-- Access to command line or terminal.
+- Python 3.8+
+- Dependencies listed in `requirements.txt` (installed automatically during setup)
+- Access to a terminal for CLI execution
 
 ## Installation
 
-This application can be packaged and installed from source. Here are the steps to package the application and install it:
+You can install **IBC Refresh** from source by following these steps:
 
-### Packaging the Application
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://your-repository-url/ibc_refresh.git
-   cd ibc_refresh
-   ```
-
-2. **Build the package**:
-   ```bash
-   python -m build
-   ```
-   This command creates a distribution package in the `dist` directory.
-
-3. **Install the package**:
-   ```bash
-   python -m pip install dist/ibc_refresh-0.1.0-py3-none-any.whl
-   ```
-   Replace the filename with the actual filename generated in the `dist` directory.
-
-### Installing on a New System
-
-To install this application on a new system, ensure Python 3.8+ is installed, then follow the packaging instructions above or use pip to install directly from a hosted package on PyPI (if available):
-
+### 1. Clone the Repository
 ```bash
-pip install ibc_refresh
+git clone https://your-repository-url/ibc_refresh.git
+cd ibc_refresh
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Install the Package
+```bash
+python -m pip install .
 ```
 
 ## Usage
 
-Once installed, you can run the application using the command line. Here’s how to execute tasks:
-
+### Running the Tool
+Execute IBC Refresh with the required configuration file:
 ```bash
-ibc_refresh --config path/to/your/config.yaml --task clear_packets
+ibc_refresh --config path/to/config.yaml --task clear_packets
 ```
 
-### Configuration
+### Supported Tasks
+- `clear_packets`: Clears pending IBC packets.
+- `update_client`: Updates client states between chains.
 
-Edit the `config.yaml` file to specify the tasks and parameters for your IBC operations. Example configuration details might include:
+Example:
+```bash
+ibc_refresh --config config.yaml --task update_client
+```
 
+## Configuration
+
+The `config.yaml` file contains settings for logging, notification methods, and task definitions.
+
+### Example Configuration:
 ```yaml
 log_directory: .logs/
 task_log_file: task_execution.log
 command_log_file: executed_commands.log
+notification_log_file: notifications.log
 hermes_path: /home/relayer/.local/bin/hermes
+
+notifications:
+  - type: discord
+    webhook: "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
+  - type: slack
+    webhook: "https://hooks.slack.com/services/YOUR_WEBHOOK_URL"
 
 tasks:
   - type: clear_packets
     entries:
-      - { chain: archway-1, port: transfer, channel: channel-147, destination_chain: beezee-1 }
-      - { chain: beezee-1, port: transfer, channel: channel-2, destination_chain: archway-1 }
-      - { chain: beezee-1, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
-      - { chain: osmosis-1, port: transfer, channel: channel-340, destination_chain: beezee-1 }
-
+      - { chain: osmosis-1, port: transfer, channel: channel-490, destination_chain: acre_9052-1 }
   - type: update_client
     entries:
-      - { host_chain: archway-1, client: 07-tendermint-114, destination_chain: beezee-1 }
-      - { host_chain: beezee-1, client: 07-tendermint-2, destination_chain: osmosis-1 }
-      - { host_chain: beezee-1, client: 07-tendermint-8, destination_chain: archway-1 }
-      - { host_chain: osmosis-1, client: 07-tendermint-2154, destination_chain: beezee-1 }
+      - { host_chain: osmosis-1, client: 07-tendermint-2316, destination_chain: acre_9052-1 }
 ```
+
+## Running as a Cron Job
+
+To automate IBC Refresh execution, add the following cron jobs to your server's crontab:
+
+```cron
+*/2 * * * * /bin/bash -c "/home/relayer/.venv/bin/python -m ibc_refresh -c /home/relayer/scripts/ibc_refresh/config.yaml -t clear_packets  >> /home/relayer/.logs/cron/cron_clearing.log 2>&1"
+0 */2 * * * /bin/bash -c "/home/relayer/.venv/bin/python -m ibc_refresh -c /home/relayer/scripts/ibc_refresh/config.yaml -t update_client  >> /home/relayer/.logs/cron/cron_update.log 2>&1"
+```
+
+These tasks:
+- Run `clear_packets` every 2 minutes.
+- Run `update_client` every 2 hours.
+- Redirect output and errors to respective log files for monitoring.
+
+## Notifications
+
+IBC Refresh supports notifications via Discord and Slack for task results.
+
+- **Discord Alerts:**
+  - Webhook-based notifications
+  - Embed messages with execution details
+  
+- **Slack Alerts:**
+  - Message blocks with command execution summary
+
+## Logs
+
+Logs are stored in the directory specified in `config.yaml`.
+
+- **Task Logs:** Recorded in `task_execution.log`.
+- **Command Logs:** Logs executed commands.
+- **Notification Logs:** Records sent notifications.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and submit pull requests with your suggested changes.
+Contributions are welcome! Please fork the repository and submit pull requests.
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-```
