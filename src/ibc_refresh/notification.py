@@ -16,7 +16,7 @@ class NotificationHandler:
             "info": 3066993        # Blue
         }
         embed_color = color_map.get(severity, 3066993)
-        timestamp = datetime.now(datetime. UTC)
+        timestamp = datetime.now(datetime.UTC)
 
         for destination in self.notifications:
             notify_type = destination.get("type")
@@ -70,6 +70,7 @@ class NotificationHandler:
             "blocks": [
                 {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*"}},
                 {"type": "section", "fields": [
+                    {"type": "mrkdwn", "text": f"*🔹 Description:*\n`{description}`"} if command else None,
                     {"type": "mrkdwn", "text": f"*🔹 Command:*\n`{command}`"} if command else None,
                     {"type": "mrkdwn", "text": f"*🔹 Chain:*\n{chain}"} if chain else None,
                     {"type": "mrkdwn", "text": f"*🔹 Destination Chain:*\n{dst_chain}"} if dst_chain else None
