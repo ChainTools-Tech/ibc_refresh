@@ -189,13 +189,16 @@ celerybeat.pid
 # ===========================
 
 # Uncomment if using Git submodules
-# .gitmodules
+.gitmodules
 
 # Uncomment if using environment files
-# .env
-# .env.local
-# .env.*.local
+.env
+.env.local
+.env.*.local
 
 # Uncomment if using database files
-# *.sqlite3
-# *.db
+*.sqlite3
+*.db
+
+# Uncomment if using configuration files for app
+config.yaml
