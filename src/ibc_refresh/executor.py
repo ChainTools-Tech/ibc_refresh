@@ -43,12 +43,17 @@ def execute_command(command, description, log_filename, config, task_key, failur
                         command=command_string
                     )
 
+                    # ✅ Reset failure count after sending notification
+                    failure_tracker.reset_failure(task_key)
+
             else:
+                # ✅ Reset failure count on success
                 failure_tracker.reset_failure(task_key)
                 cmd_logger.info(f"Completed successfully: {description} (Duration: {end_time - start_time})")
 
         except FileNotFoundError:
             cmd_logger.exception(f"Command not found: {command_string}")
+
 
 
 def process_tasks(cmdargs, config):
