@@ -2,6 +2,7 @@ log_directory: .logs/
 task_log_file: task_execution.log
 command_log_file: executed_commands.log
 notification_log_file: notifications.log
+failure_tracker_log_file: failure_tracker.json
 hermes_path: /home/relayer/.local/bin/hermes
 
 notifications:
@@ -10,6 +11,7 @@ notifications:
 
 tasks:
   - type: clear_packets
+    failure_threshold: 3
     entries:
       - { chain: acre_9052-1, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
       - { chain: osmosis-1, port: transfer, channel: channel-490, destination_chain: acre_9052-1 }
@@ -37,6 +39,7 @@ tasks:
       - { chain: mainnet-3, port: transfer, channel: channel-4, destination_chain: sentinelhub-2 }
 
   - type: update_client
+    failure_threshold: 4
     entries:
       - { host_chain: acre_9052-1, client: 07-tendermint-0, destination_chain: osmosis-1 }
       - { host_chain: osmosis-1, client: 07-tendermint-2316, destination_chain: acre_9052-1 }
