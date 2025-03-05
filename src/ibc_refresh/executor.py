@@ -56,6 +56,7 @@ def execute_command(command, description, log_filename, config, task_key, failur
 
 
 
+
 def process_tasks(cmdargs, config):
     tasks_log_path = ensure_directory(os.path.join(config['log_directory'], 'task_output/'))
 
