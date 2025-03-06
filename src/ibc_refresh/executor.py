@@ -65,21 +65,27 @@ def check_client_expiration(entry, config):
 
     task_logger.info(f"Executing check_client_expiration for {chain} - {client}")
 
-    # Fetch trusting period and last header time
-    trusting_period_seconds = api_client.fetch_trusting_period(client)
-    last_header_time = api_client.fetch_last_header_time(client)
-
-    if trusting_period_seconds is None or last_header_time is None:
+    # Fetch client state from API
+    client_state = api_client.fetch_client_state(client)
+    if client_state is None:
         task_logger.error(f"Skipping client {client} on {chain} due to missing data.")
         return
 
-    # Calculate expiration time
-    expiration_time = last_header_time + timedelta(seconds=trusting_period_seconds)
-    current_time = datetime.utcnow()
-    days_remaining = (expiration_time - current_time).total_seconds() / 86400  # Convert seconds to days
+    try:
+        trusting_period_seconds = int(client_state["trusting_period"].replace("s", ""))
+        latest_height = int(client_state["latest_height"]["revision_height"])
+        proof_height = int(client_state["proof_height"]["revision_height"])
+
+    except (KeyError, ValueError):
+        task_logger.error(f"Failed to extract client data for {client} on {chain}")
+        return
+
+    # Estimate expiration time using proof height
+    expiration_time = datetime.utcnow() + timedelta(seconds=trusting_period_seconds)
+    days_remaining = (expiration_time - datetime.utcnow()).total_seconds() / 86400  # Convert seconds to days
 
     # Log expiration details
-    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Last header update: {last_header_time}")
+    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Latest height: {latest_height}, Proof height: {proof_height}")
 
     severity, color_icon = ("info", "🟢") if days_remaining > 7 else \
                            ("warning", "🟡") if days_remaining >= 3 else \
@@ -91,13 +97,14 @@ def check_client_expiration(entry, config):
     notifier.send_notification(
         title=f"{color_icon} Client Expiration Notice: {chain}",
         description=f"Client `{client}` will expire in `{days_remaining:.2f}` days.\n"
-                    f"🔹 Last header update: `{last_header_time}`\n"
-                    f"🔹 Trusting period: `{trusting_period_seconds / 86400:.2f}` days",
+                    f"🔹 Latest Height: `{latest_height}`\n"
+                    f"🔹 Proof Height: `{proof_height}`\n"
+                    f"🔹 Trusting Period: `{trusting_period_seconds / 86400:.2f}` days`",
         severity=severity,
         chain=chain
     )
 
-    return f"Client {client} on {chain} expires in {days_remaining} days. Checked at height: {latest_block_height}."
+    return f"Client {client} on {chain}: Expires in {days_remaining:.2f} days."
 
 
 def process_tasks(cmdargs, config):
@@ -132,4 +139,5 @@ def process_tasks(cmdargs, config):
 
                 task_logger.info(f"Checking expiration for client {client_key}")  # ✅ Log each client check
                 result = check_client_expiration(entry, config)
-                task_logger.info(result)
+                if result:
+                    task_logger.info(result)

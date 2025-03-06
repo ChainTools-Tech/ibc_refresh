@@ -10,28 +10,22 @@ class APIClient:
     def __init__(self, api_url):
         self.api_url = api_url
 
-    def fetch_trusting_period(self, client_id):
-        """Fetches the trusting period for the given IBC client."""
-        try:
-            response = requests.get(f"{self.api_url}/ibc/core/client/v1/client_states/{client_id}", timeout=5)
-            response.raise_for_status()
-            data = response.json()
-            trusting_period = int(data["client_state"]["trusting_period"].replace("s", ""))  # Convert to seconds
-            return trusting_period
-        except (requests.RequestException, KeyError, ValueError) as e:
-            logger.error(f"Failed to fetch trusting period for client {client_id}: {e}")
-            return None
+    def fetch_client_state(self, client_id):
+        """Fetches the client state for the given IBC client."""
+        url = f"{self.api_url}/ibc/core/client/v1/client_states/{client_id}"
+        logger.debug(f"Fetching client state from: {url}")
 
-    def fetch_last_header_time(self, client_id):
-        """Fetches the last header update timestamp for the given IBC client."""
         try:
-            response = requests.get(f"{self.api_url}/ibc/core/client/v1/consensus_states/{client_id}/latest", timeout=5)
+            response = requests.get(url, timeout=5)
             response.raise_for_status()
-            data = response.json()
-            timestamp = datetime.strptime(data["consensus_state"]["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ")
-            return timestamp
+            data = response.json()["client_state"]
+            return {
+                "trusting_period": data["trusting_period"],
+                "latest_height": data["latest_height"],
+                "proof_height": data["proof_height"]
+            }
         except (requests.RequestException, KeyError, ValueError) as e:
-            logger.error(f"Failed to fetch last header time for client {client_id}: {e}")
+            logger.error(f"Failed to fetch client state for {client_id}: {e}")
             return None
 
 
