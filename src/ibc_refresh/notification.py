@@ -43,7 +43,7 @@ class NotificationHandler:
                     "color": color,
                     "fields": [
                         {"name": "🔹 Command", "value": f"`{command}`"} if command else None,
-                        {"name": "🔹 Chain", "value": chain} if chain else None,
+                        {"name": "🔹 Source Chain", "value": chain} if chain else None,
                         {"name": "🔹 Destination Chain", "value": dst_chain} if dst_chain else None
                     ],
                     "timestamp": timestamp,

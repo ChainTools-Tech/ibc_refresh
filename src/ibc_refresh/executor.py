@@ -64,8 +64,8 @@ def check_client_expiration(entry, config):
     rpc_url = entry["rpc_endpoint"]
 
     # Run Hermes command to get client state
-    command = [config['hermes_path'], 'query', 'client', 'state', '--chain', chain, '--client', client]
-    result = subprocess.run(command, capture_output=True, text=True)
+    command_string = [config['hermes_path'], 'query', 'client', 'state', '--chain', chain, '--client', client]
+    result = subprocess.run(command_string, capture_output=True, text=True)
 
     if result.returncode != 0:
         return f"Failed to query client state for {chain} - {client}"
@@ -113,6 +113,7 @@ def check_client_expiration(entry, config):
                     f"🔹 Destination Chain: `{destination_chain}`\n"
                     f"🔹 Checked at height: `{latest_block_height}`",
         severity=severity,
+        command=command_string,
         chain=chain,
         dst_chain=destination_chain
     )
