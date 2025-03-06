@@ -7,7 +7,7 @@ hermes_path: /home/relayer/.local/bin/hermes
 
 notifications:
   - type: discord
-    webhook: "https://discord.com/api/webhooks/............"
+    webhook: "https://discord.com/api/webhooks/1339608344935010304/..."
 
 tasks:
   - type: clear_packets
@@ -39,7 +39,7 @@ tasks:
       - { chain: mainnet-3, port: transfer, channel: channel-4, destination_chain: sentinelhub-2 }
 
   - type: update_client
-    failure_threshold: 4
+    failure_threshold: 2
     entries:
       - { host_chain: acre_9052-1, client: 07-tendermint-0, destination_chain: osmosis-1 }
       - { host_chain: osmosis-1, client: 07-tendermint-2316, destination_chain: acre_9052-1 }
