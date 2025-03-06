@@ -4,6 +4,7 @@ import subprocess
 from datetime import datetime
 from ibc_refresh.failure_tracker import FailureTracker
 from ibc_refresh.notification import NotificationHandler
+from ibc_refresh.rpc_client import get_latest_block_height
 from ibc_refresh.utils import ensure_directory
 
 
