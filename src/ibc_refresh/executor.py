@@ -108,10 +108,9 @@ def check_client_expiration(entry, config):
     # Send notification with chain_id and checked height
     notifier = NotificationHandler(config)
     notifier.send_notification(
-        title=f"{color_icon} Client Expiration Notice: {chain}",
+        title=f"{color_icon} Client Expiration Notice: {chain}, {client}",
         description=f"Client `{client}` will expire in `{days_remaining}` days.\n"
-                    f"🔹 Destination Chain: `{destination_chain}`\n"
-                    f"🔹 Checked at height: `{latest_block_height}`",
+                    f"Checked at height: `{latest_block_height}`",
         severity=severity,
         command=command_string,
         chain=chain,
