@@ -55,6 +55,58 @@ def execute_command(command, description, log_filename, config, task_key, failur
             cmd_logger.exception(f"Command not found: {command_string}")
 
 
+def check_client_expiration(entry, config):
+    """Check the expiration of an IBC client and send a notification."""
+    chain = entry["chain"]
+    client = entry["client"]
+    rpc_url = entry["rpc_endpoint"]
+
+    # Run Hermes command to get client state
+    command = [config['hermes_path'], 'query', 'client', 'state', '--chain', chain, '--client', client]
+    result = subprocess.run(command, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        return f"Failed to query client state for {chain} - {client}"
+
+    # Extract trusting period from Hermes output
+    try:
+        output = result.stdout
+        trusting_period_seconds = int(output.split("trusting_period: ")[1].split("s")[0])  # Extracting value
+        trusting_period_days = trusting_period_seconds // 86400  # Convert to days
+    except (IndexError, ValueError):
+        return f"Error extracting trusting period from {chain} - {client}"
+
+    # Fetch latest block height
+    latest_block_height = get_latest_block_height(rpc_url)
+    if latest_block_height is None:
+        return f"Failed to fetch latest block height for {chain}"
+
+    # Get current date and estimate expiration
+    current_date = datetime.utcnow()
+    expiration_date = current_date + timedelta(days=trusting_period_days)
+    days_remaining = (expiration_date - current_date).days
+
+    # Determine severity level
+    if days_remaining > 7:
+        severity = "info"  # Green (Safe)
+        color_icon = "🟢"
+    elif 3 <= days_remaining <= 7:
+        severity = "warning"  # Yellow (Warning)
+        color_icon = "🟡"
+    else:
+        severity = "critical"  # Red (Urgent)
+        color_icon = "🔴"
+
+    # Send notification with proper color coding
+    notifier = NotificationHandler(config)
+    notifier.send_notification(
+        title=f"{color_icon} Client Expiration Notice: {chain}",
+        description=f"Client `{client}` will expire in `{days_remaining}` days.",
+        severity=severity,
+        chain=chain
+    )
+
+    return f"Client {client} on {chain} expires in {days_remaining} days."
 
 
 def process_tasks(cmdargs, config):
@@ -83,3 +135,8 @@ def process_tasks(cmdargs, config):
                     '--host-chain', entry['host_chain'], '--client', entry['client']
                 ]
                 execute_command(command, description, cmd_output_log_filename, config, task_key, failure_threshold)
+
+            elif task['type'] == 'client_expiration' and 'client_expiration' in cmdargs.task:
+                for entry in task['entries']:
+                    result = check_client_expiration(entry, config)
+                    task_logger.info(result)
