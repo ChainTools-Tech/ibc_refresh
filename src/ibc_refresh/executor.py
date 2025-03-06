@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 from datetime import datetime, timedelta
 from ibc_refresh.failure_tracker import FailureTracker
@@ -69,13 +70,19 @@ def check_client_expiration(entry, config):
     if result.returncode != 0:
         return f"Failed to query client state for {chain} - {client}"
 
-    # Extract trusting period from Hermes output
+    # Extract trusting period & chain_id
+    output = result.stdout
+
     try:
-        output = result.stdout
-        trusting_period_seconds = int(output.split("trusting_period: ")[1].split("s")[0])  # Extracting value
+        trusting_period_seconds = int(output.split("trusting_period: ")[1].split("s")[0])  # Extract trusting period
         trusting_period_days = trusting_period_seconds // 86400  # Convert to days
-    except (IndexError, ValueError):
-        return f"Error extracting trusting period from {chain} - {client}"
+
+        # Extract destination chain_id using regex
+        match = re.search(r'chain_id: ChainId \{\s*id: "(.*?)"', output)
+        destination_chain = match.group(1) if match else "Unknown"
+
+    except (IndexError, ValueError, AttributeError):
+        return f"Error extracting client state details for {chain} - {client}"
 
     # Fetch latest block height
     latest_block_height = get_latest_block_height(rpc_url)
@@ -98,16 +105,19 @@ def check_client_expiration(entry, config):
         severity = "critical"  # Red (Urgent)
         color_icon = "🔴"
 
-    # Send notification with proper color coding
+    # Send notification with chain_id and checked height
     notifier = NotificationHandler(config)
     notifier.send_notification(
         title=f"{color_icon} Client Expiration Notice: {chain}",
-        description=f"Client `{client}` will expire in `{days_remaining}` days.",
+        description=f"Client `{client}` will expire in `{days_remaining}` days.\n"
+                    f"🔹 Destination Chain: `{destination_chain}`\n"
+                    f"🔹 Checked at height: `{latest_block_height}`",
         severity=severity,
-        chain=chain
+        chain=chain,
+        dst_chain=destination_chain
     )
 
-    return f"Client {client} on {chain} expires in {days_remaining} days."
+    return f"Client {client} on {chain} expires in {days_remaining} days. Checked at height: {latest_block_height}."
 
 
 def process_tasks(cmdargs, config):
