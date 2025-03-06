@@ -1,7 +1,7 @@
 import logging
 import os
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from ibc_refresh.failure_tracker import FailureTracker
 from ibc_refresh.notification import NotificationHandler
 from ibc_refresh.rpc_client import get_latest_block_height
