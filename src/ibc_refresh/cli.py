@@ -18,7 +18,7 @@ def command_line_parser():
                         required=True,
                         action='store',
                         dest='task',
-                        choices=['clear_packets', 'update_client'],
+                        choices=['clear_packets', 'update_client', "client_expiration"],
                         help='List of tasks to execute (e.g., clear_packets, update_client)')
     parser.add_argument('-v', '--version',
                         action='version',
