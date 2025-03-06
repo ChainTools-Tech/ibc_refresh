@@ -81,6 +81,11 @@ def check_client_expiration(entry, config):
         match = re.search(r'chain_id: ChainId \{\s*id: "(.*?)"', output)
         destination_chain = match.group(1) if match else "Unknown"
 
+        # Extract latest_height from Hermes response whch is reference height for client update
+        match_height = re.search(r'latest_height: Height \{\s*revision: \d+,\s*height: (\d+)', output)
+        reference_height = int(match_height.group(1)) if match_height else None
+
+
     except (IndexError, ValueError, AttributeError):
         return f"Error extracting client state details for {chain} - {client}"
 
@@ -110,7 +115,8 @@ def check_client_expiration(entry, config):
     notifier.send_notification(
         title=f"{color_icon} Client Expiration Notice: {chain}, {client}",
         description=f"Client `{client}` will expire in `{days_remaining}` days.\n"
-                    f"Checked at height: `{latest_block_height}`",
+                    f"Checked at height: `{latest_block_height}`\n"
+                    f"Reference height: `{reference_height}`",
         severity=severity,
         command=command_string,
         chain=chain,
