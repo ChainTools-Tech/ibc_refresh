@@ -65,27 +65,27 @@ def check_client_expiration(entry, config):
 
     task_logger.info(f"Executing check_client_expiration for {chain} - {client}")
 
-    # Fetch client state from API
+    # Fetch client state
     client_state = api_client.fetch_client_state(client)
     if client_state is None:
         task_logger.error(f"Skipping client {client} on {chain} due to missing data.")
-        return
+        return f"Client {client} on {chain}: Missing data."
 
     try:
         trusting_period_seconds = int(client_state["trusting_period"].replace("s", ""))
-        latest_height = int(client_state["latest_height"]["revision_height"])
-        proof_height = int(client_state["proof_height"]["revision_height"])
+        latest_height = client_state["latest_height"]
+        proof_height = client_state["proof_height"]  # Can be None
 
     except (KeyError, ValueError):
         task_logger.error(f"Failed to extract client data for {client} on {chain}")
-        return
+        return f"Client {client} on {chain}: Data extraction failed."
 
-    # Estimate expiration time using proof height
     expiration_time = datetime.utcnow() + timedelta(seconds=trusting_period_seconds)
     days_remaining = (expiration_time - datetime.utcnow()).total_seconds() / 86400  # Convert seconds to days
 
     # Log expiration details
-    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Latest height: {latest_height}, Proof height: {proof_height}")
+    proof_height_str = proof_height if proof_height else "N/A"
+    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Latest height: {latest_height}, Proof height: {proof_height_str}")
 
     severity, color_icon = ("info", "🟢") if days_remaining > 7 else \
                            ("warning", "🟡") if days_remaining >= 3 else \
@@ -98,13 +98,14 @@ def check_client_expiration(entry, config):
         title=f"{color_icon} Client Expiration Notice: {chain}",
         description=f"Client `{client}` will expire in `{days_remaining:.2f}` days.\n"
                     f"🔹 Latest Height: `{latest_height}`\n"
-                    f"🔹 Proof Height: `{proof_height}`\n"
+                    f"🔹 Proof Height: `{proof_height_str}`\n"
                     f"🔹 Trusting Period: `{trusting_period_seconds / 86400:.2f}` days`",
         severity=severity,
         chain=chain
     )
 
     return f"Client {client} on {chain}: Expires in {days_remaining:.2f} days."
+
 
 
 def process_tasks(cmdargs, config):

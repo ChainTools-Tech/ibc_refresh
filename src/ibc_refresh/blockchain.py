@@ -19,11 +19,18 @@ class APIClient:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
             data = response.json()["client_state"]
+
+            # Extract required fields safely
+            trusting_period = data["trusting_period"]
+            latest_height = data["latest_height"]["revision_height"]
+            proof_height = data.get("proof_height", {}).get("revision_height", None)  # ✅ Handle missing proof_height
+
             return {
-                "trusting_period": data["trusting_period"],
-                "latest_height": data["latest_height"],
-                "proof_height": data["proof_height"]
+                "trusting_period": trusting_period,
+                "latest_height": int(latest_height),
+                "proof_height": int(proof_height) if proof_height else None
             }
+
         except (requests.RequestException, KeyError, ValueError) as e:
             logger.error(f"Failed to fetch client state for {client_id}: {e}")
             return None
