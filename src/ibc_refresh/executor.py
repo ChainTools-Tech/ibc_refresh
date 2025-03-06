@@ -4,8 +4,8 @@ import re
 import subprocess
 from datetime import datetime, timedelta
 from ibc_refresh.failure_tracker import FailureTracker
+from ibc_refresh.blockchain import APIClient
 from ibc_refresh.notification import NotificationHandler
-from ibc_refresh.rpc_client import get_latest_block_height
 from ibc_refresh.utils import ensure_directory
 
 
@@ -61,66 +61,40 @@ def check_client_expiration(entry, config):
     """Check the expiration of an IBC client and send a notification."""
     chain = entry["chain"]
     client = entry["client"]
-    rpc_url = entry["rpc_endpoint"]
+    api_client = APIClient(entry["api_endpoint"])
 
-    # Run Hermes command to get client state
-    command_string = [config['hermes_path'], 'query', 'client', 'state', '--chain', chain, '--client', client]
-    result = subprocess.run(command_string, capture_output=True, text=True)
+    task_logger.info(f"Executing check_client_expiration for {chain} - {client}")
 
-    if result.returncode != 0:
-        return f"Failed to query client state for {chain} - {client}"
+    # Fetch trusting period and last header time
+    trusting_period_seconds = api_client.fetch_trusting_period(client)
+    last_header_time = api_client.fetch_last_header_time(client)
 
-    # Extract trusting period & chain_id
-    output = result.stdout
+    if trusting_period_seconds is None or last_header_time is None:
+        task_logger.error(f"Skipping client {client} on {chain} due to missing data.")
+        return
 
-    try:
-        trusting_period_seconds = int(output.split("trusting_period: ")[1].split("s")[0])  # Extract trusting period
-        trusting_period_days = trusting_period_seconds // 86400  # Convert to days
+    # Calculate expiration time
+    expiration_time = last_header_time + timedelta(seconds=trusting_period_seconds)
+    current_time = datetime.utcnow()
+    days_remaining = (expiration_time - current_time).total_seconds() / 86400  # Convert seconds to days
 
-        # Extract destination chain_id using regex
-        match = re.search(r'chain_id: ChainId \{\s*id: "(.*?)"', output)
-        destination_chain = match.group(1) if match else "Unknown"
+    # Log expiration details
+    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Last header update: {last_header_time}")
 
-        # Extract latest_height from Hermes response whch is reference height for client update
-        match_height = re.search(r'latest_height: Height \{\s*revision: \d+,\s*height: (\d+)', output)
-        reference_height = int(match_height.group(1)) if match_height else None
+    severity, color_icon = ("info", "🟢") if days_remaining > 7 else \
+                           ("warning", "🟡") if days_remaining >= 3 else \
+                           ("critical", "🔴")
 
-
-    except (IndexError, ValueError, AttributeError):
-        return f"Error extracting client state details for {chain} - {client}"
-
-    # Fetch latest block height
-    latest_block_height = get_latest_block_height(rpc_url)
-    if latest_block_height is None:
-        return f"Failed to fetch latest block height for {chain}"
-
-    # Get current date and estimate expiration
-    current_date = datetime.utcnow()
-    expiration_date = current_date + timedelta(days=trusting_period_days)
-    days_remaining = (expiration_date - current_date).days
-
-    # Determine severity level
-    if days_remaining > 7:
-        severity = "info"  # Green (Safe)
-        color_icon = "🟢"
-    elif 3 <= days_remaining <= 7:
-        severity = "warning"  # Yellow (Warning)
-        color_icon = "🟡"
-    else:
-        severity = "critical"  # Red (Urgent)
-        color_icon = "🔴"
-
-    # Send notification with chain_id and checked height
     notifier = NotificationHandler(config)
+    task_logger.info(f"Sending notification for {chain} - {client}")
+
     notifier.send_notification(
-        title=f"{color_icon} Client Expiration Notice: {chain}, {client}",
-        description=f"Client `{client}` will expire in `{days_remaining}` days.\n"
-                    f"Checked at height: `{latest_block_height}`\n"
-                    f"Reference height: `{reference_height}`",
+        title=f"{color_icon} Client Expiration Notice: {chain}",
+        description=f"Client `{client}` will expire in `{days_remaining:.2f}` days.\n"
+                    f"🔹 Last header update: `{last_header_time}`\n"
+                    f"🔹 Trusting period: `{trusting_period_seconds / 86400:.2f}` days",
         severity=severity,
-        command=command_string,
-        chain=chain,
-        dst_chain=destination_chain
+        chain=chain
     )
 
     return f"Client {client} on {chain} expires in {days_remaining} days. Checked at height: {latest_block_height}."

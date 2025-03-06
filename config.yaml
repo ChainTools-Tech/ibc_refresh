@@ -67,5 +67,5 @@ tasks:
 
   - type: client_expiration
     entries:
-      - { chain: osmosis-1, client: 07-tendermint-0, rpc_endpoint: "https://rpc.osmosis.zone" }
-      - { chain: bitsong-2b, client: 07-tendermint-0, rpc_endpoint: "https://rpc.bitsong.network" }
+      - { chain: osmosis-1, client: 07-tendermint-0, api_endpoint: "https://api.osmosis.zone" }
+      - { chain: bitsong-2b, client: 07-tendermint-0, api_endpoint: "https://api.bitsong.network" }
