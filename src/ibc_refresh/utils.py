@@ -15,3 +15,11 @@ def ensure_directory(path):
         logging.error(f"Error creating directory {directory}: {e}, Fallback directory {fallback_dir}")
         os.makedirs(fallback_dir, exist_ok=True)
         return fallback_dir
+
+
+def get_endpoint(config, endpoint_type, chain_id):
+    """Fetches API or RPC endpoint for a given chain_id from config."""
+    for entry in config["endpoints"].get(endpoint_type, []):
+        if entry["chain_id"] == chain_id:
+            return entry["endpoint_url"]
+    return None  # Return None if no match found
