@@ -2,6 +2,7 @@ log_directory: .logs/
 task_log_file: task_execution.log
 command_log_file: executed_commands.log
 notification_log_file: notifications.log
+failure_tracker_log_file: failure_tracker.json
 hermes_path: /home/relayer/.local/bin/hermes
 
 notifications:
@@ -10,6 +11,7 @@ notifications:
 
 tasks:
   - type: clear_packets
+    failure_threshold: 2
     entries:
       - { chain: acre_9052-1, port: transfer, channel: channel-0, destination_chain: osmosis-1 }
       - { chain: osmosis-1, port: transfer, channel: channel-490, destination_chain: acre_9052-1 }
@@ -37,6 +39,7 @@ tasks:
       - { chain: mainnet-3, port: transfer, channel: channel-4, destination_chain: sentinelhub-2 }
 
   - type: update_client
+    failure_threshold: 2
     entries:
       - { host_chain: acre_9052-1, client: 07-tendermint-0, destination_chain: osmosis-1 }
       - { host_chain: osmosis-1, client: 07-tendermint-2316, destination_chain: acre_9052-1 }
@@ -67,5 +70,14 @@ tasks:
 
   - type: client_expiration
     entries:
-      - { chain: osmosis-1, client: 07-tendermint-2154, api_endpoint: "https://lcd.osmosis.zone", destination_chain: beezee-1, rpc_endpoint_dst: "https://rpc.beezee.zone", avg_block_time: 6 }
-      - { chain: beezee-1, client: 07-tendermint-2, api_endpoint: "https://lcd.beezee.zone", destination_chain: osmosis-1, rpc_endpoint_dst: "https://rpc.osmosis.zone", avg_block_time: 6 }
+      - { src_chain: osmosis-1, client: 07-tendermint-2154, dst_chain: beezee-1, avg_block_time: 6 }
+      - { src_chain: beezee-1, client: 07-tendermint-2, dst_chain: osmosis-1, avg_block_time: 6 }
+
+
+endpoints:
+  api:
+    - { chain_id: osmosis-1, endpoint_url: "https://lcd.osmosis.zone" }
+    - { chain_id: beezee-1, endpoint_url: "https://lcd.beezee.zone" }
+  rpc:
+    - { chain_id: osmosis-1, endpoint_url: "https://rpc.osmosis.zone" }
+    - { chain_id: beezee-1, endpoint_url: "https://rpc.beezee.zone" }
