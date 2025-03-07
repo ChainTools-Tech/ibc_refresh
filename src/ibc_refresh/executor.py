@@ -156,7 +156,7 @@ def process_tasks(cmdargs, config):
                 execute_command(command, description, cmd_output_log_filename, config, task_key, failure_threshold)
 
             elif task['type'] == 'client_expiration' and 'client_expiration' in cmdargs.task:
-                client_key = (entry["chain"], entry["client"])  # Unique key per client
+                client_key = (entry["src_chain"], entry["client"], entry["dst_chain"])  # Unique key per client
 
                 task_logger.info(f"Checking expiration for client {client_key}")  # ✅ Log each client check
                 result = check_client_expiration(entry, config)
