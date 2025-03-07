@@ -4,7 +4,7 @@ import re
 import subprocess
 from datetime import datetime, timedelta
 from ibc_refresh.failure_tracker import FailureTracker
-from ibc_refresh.blockchain import APIClient
+from ibc_refresh.blockchain import APIClient, RPCClient
 from ibc_refresh.notification import NotificationHandler
 from ibc_refresh.utils import ensure_directory
 
