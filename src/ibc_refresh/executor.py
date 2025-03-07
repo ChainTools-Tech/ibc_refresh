@@ -59,52 +59,63 @@ def execute_command(command, description, log_filename, config, task_key, failur
 
 def check_client_expiration(entry, config):
     """Check the expiration of an IBC client and send a notification."""
-    chain = entry["chain"]
+    source_chain = entry["chain"]  # The chain where the client exists
     client = entry["client"]
-    api_client = APIClient(entry["api_endpoint"])
+    destination_chain = entry["destination_chain"]  # The chain the client represents
+    api_client = APIClient(entry["api_endpoint"])  # API client for source chain
+    rpc_client = RPCClient(entry["rpc_endpoint_dst"])  # RPC client for destination chain
 
-    task_logger.info(f"Executing check_client_expiration for {chain} - {client}")
+    task_logger.info(f"Executing check_client_expiration for {source_chain} - {client}, representing {destination_chain}")
 
     # Fetch client state
     client_state = api_client.fetch_client_state(client)
     if client_state is None:
-        task_logger.error(f"Skipping client {client} on {chain} due to missing data.")
-        return f"Client {client} on {chain}: Missing data."
+        task_logger.error(f"Skipping client {client} on {source_chain} due to missing data.")
+        return f"Client {client} on {source_chain}: Missing data."
 
     try:
         trusting_period_seconds = int(client_state["trusting_period"].replace("s", ""))
-        latest_height = client_state["latest_height"]
-        proof_height = client_state["proof_height"]  # Can be None
-
+        latest_height_client = client_state["latest_height"]  # Represents height from destination_chain
     except (KeyError, ValueError):
-        task_logger.error(f"Failed to extract client data for {client} on {chain}")
-        return f"Client {client} on {chain}: Data extraction failed."
+        task_logger.error(f"Failed to extract client data for {client} on {source_chain}")
+        return f"Client {client} on {source_chain}: Data extraction failed."
 
-    expiration_time = datetime.utcnow() + timedelta(seconds=trusting_period_seconds)
-    days_remaining = (expiration_time - datetime.utcnow()).total_seconds() / 86400  # Convert seconds to days
+    # Get current block height of the destination chain
+    current_height_dst = rpc_client.get_latest_block_height()
+    if current_height_dst is None:
+        task_logger.error(f"Failed to fetch latest block height for {destination_chain}")
+        return f"Client {client} on {source_chain}: Missing latest block height from {destination_chain}"
+
+    # Estimate time since last update
+    avg_block_time = entry.get("avg_block_time", 6)  # Default 6 seconds per block if not specified
+    time_since_last_update = (current_height_dst - latest_height_client) * avg_block_time
+
+    # Calculate expiration time
+    expiration_time = datetime.utcnow() - timedelta(seconds=time_since_last_update) + timedelta(seconds=trusting_period_seconds)
+    current_time = datetime.utcnow()
+    days_remaining = (expiration_time - current_time).total_seconds() / 86400  # Convert seconds to days
 
     # Log expiration details
-    proof_height_str = proof_height if proof_height else "N/A"
-    task_logger.info(f"Client {client} on {chain} expires in {days_remaining:.2f} days. Latest height: {latest_height}, Proof height: {proof_height_str}")
+    task_logger.info(f"Client {client} on {source_chain} expires in {days_remaining:.2f} days. Latest height (client): {latest_height_client}, Current height (dst): {current_height_dst}")
 
     severity, color_icon = ("info", "🟢") if days_remaining > 7 else \
                            ("warning", "🟡") if days_remaining >= 3 else \
                            ("critical", "🔴")
 
     notifier = NotificationHandler(config)
-    task_logger.info(f"Sending notification for {chain} - {client}")
+    task_logger.info(f"Sending notification for {source_chain} - {client}")
 
     notifier.send_notification(
-        title=f"{color_icon} Client Expiration Notice: {chain}",
-        description=f"Client `{client}` will expire in `{days_remaining:.2f}` days.\n"
-                    f"🔹 Latest Height: `{latest_height}`\n"
-                    f"🔹 Proof Height: `{proof_height_str}`\n"
-                    f"🔹 Trusting Period: `{trusting_period_seconds / 86400:.2f}` days`",
+        title=f"{color_icon} Client Expiration Notice: {source_chain}",
+        description=f"Client `{client}` (tracking `{destination_chain}`) will expire in `{days_remaining:.2f}` days.\n"
+                    f"🔹 Latest Height (Client): `{latest_height_client}`\n"
+                    f"🔹 Current Height ({destination_chain}): `{current_height_dst}`\n"
+                    f"🔹 Trusting Period: `{trusting_period_seconds / 86400:.2f}` days",
         severity=severity,
-        chain=chain
+        chain=source_chain
     )
 
-    return f"Client {client} on {chain}: Expires in {days_remaining:.2f} days."
+    return f"Client {client} on {source_chain}: Expires in {days_remaining:.2f} days."
 
 
 

@@ -52,3 +52,4 @@ class RPCClient:
         except (requests.RequestException, KeyError, ValueError) as e:
             logger.error(f"Failed to fetch latest block height from {self.rpc_url}: {e}")
             return None
+

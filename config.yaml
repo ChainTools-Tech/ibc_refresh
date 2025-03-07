@@ -67,5 +67,5 @@ tasks:
 
   - type: client_expiration
     entries:
-      - { chain: osmosis-1, client: 07-tendermint-0, api_endpoint: "https://api.osmosis.zone" }
-      - { chain: bitsong-2b, client: 07-tendermint-0, api_endpoint: "https://api.bitsong.network" }
+      - { chain: osmosis-1, client: 07-tendermint-2154, api_endpoint: "https://lcd.osmosis.zone", destination_chain: beezee-1, rpc_endpoint_dst: "https://rpc.beezee.zone", avg_block_time: 6 }
+      - { chain: beezee-1, client: 07-tendermint-2, api_endpoint: "https://lcd.beezee.zone", destination_chain: osmosis-1, rpc_endpoint_dst: "https://rpc.osmosis.zone", avg_block_time: 6 }
