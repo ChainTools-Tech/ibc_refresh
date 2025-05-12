@@ -1,0 +1,51 @@
+stages:
+  - mirror
+
+variables:
+  GIT_DEPTH: 0
+  GITHUB_BRANCH: main
+  PUBLISH_BRANCH: publish
+  TEMP_BRANCH: publish-temp
+
+mirror_clean_publish:
+  stage: mirror
+  script:
+    - git config --global user.email "qf3l3k@gmail.com"
+    - git config --global user.name "GitLab CI"
+
+    # Add GitHub as a remote if not present
+    - git remote remove github || true
+    - git remote add github "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_ORG}/${CI_PROJECT_NAME}.git"
+
+    # Checkout master and pull latest
+    - git checkout "$PUBLISH_BRANCH"
+    - git pull origin "$PUBLISH_BRANCH"
+
+    # Remove any old temp branch so we can recreate it
+    - git branch -D "$TEMP_BRANCH" || true
+
+    # Create clean branch
+    - git checkout -b "$TEMP_BRANCH"
+
+    # Remove private/internal files (add more as needed)
+    - |
+      for path in .gitlab-ci.yml internal_docs/ secrets/ ci-scripts/ config.yml config.yaml .env; do
+        rm -rf "$path" || true
+      done
+
+    # Commit only if there are changes
+    - |
+      if [ -n "$(git status --porcelain)" ]; then
+        git commit -am "Clean publish branch for GitHub"
+      else
+        echo "Nothing to commit, skipping"
+      fi
+
+    # Force push temp branch to GitHub as main
+    - GIT_TRACE=1 git push -f github "$TEMP_BRANCH:$GITHUB_BRANCH"
+    - git push --tags github
+    - git checkout "$PUBLISH_BRANCH"
+    - git branch -D "$TEMP_BRANCH"
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $PUBLISH_BRANCH"
+      when: always
