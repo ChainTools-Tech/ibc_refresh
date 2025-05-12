@@ -6,7 +6,7 @@ hermes_path: /home/relayer/.local/bin/hermes
 
 notifications:
   - type: discord
-    webhook: "https://discord.com/api/webhooks/1339608344935010304/IwT6zdMhdLkD0mY2LaIKNsoS9UuHBVw6LHSnT4tgEcFt9tcmrBcx3GONiLD7qzV9zB_n"
+    webhook: "https://discord.com/api/webhooks/..."
 
 tasks:
   - type: clear_packets
